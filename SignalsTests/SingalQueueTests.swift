@@ -68,7 +68,7 @@ class SignalQueueTests: XCTestCase {
     func testConditionalListening() {
         let expectation = expectationWithDescription("queuedDispatch")
         
-        let listener = emitter.onIntAndString.listen(self, callback: { (argument1, argument2) -> Void in
+        emitter.onIntAndString.listen(self, callback: { (argument1, argument2) -> Void in
             XCTAssertEqual(argument1, 2, "argument1 catched")
             XCTAssertEqual(argument2, "test2", "argument2 catched")
             expectation.fulfill()

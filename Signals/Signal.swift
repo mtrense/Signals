@@ -10,7 +10,7 @@ import Foundation
 
 /// Create instances of Signal and assign them to public constants on your class for each event type that can
 /// be observed by listeners.
-public class Signal<T> {
+final public class Signal<T> {
     
     /// The number of times the signal has fired.
     public var fireCount: Int
@@ -21,12 +21,7 @@ public class Signal<T> {
     /// All the listeners listening to the Signal.
     public var listeners:[AnyObject] {
         get {
-            return signalListeners.filter {
-                if let definiteListener: AnyObject = $0.listener {
-                    return true
-                }
-                return false
-            }.map {
+            return signalListeners.filter { $0.listener != nil }.map {
                 (signal) -> AnyObject in
                 return signal.listener!
             }
@@ -37,42 +32,34 @@ public class Signal<T> {
         fireCount = 0
     }
     
-    private var signalListeners = [SignalListener<T>]() // FIXME: Replace with Set once Swift 1.2 is out
+    private var signalListeners = [SignalListener<T>]()
     
     private func dumpCancelledListeners() {
-        var removeListeners = false
         for signalListener in signalListeners {
             if signalListener.listener == nil {
-                removeListeners = true
-            }
-        }
-        if removeListeners {
-            signalListeners = signalListeners.filter {
-                if let definiteListener: AnyObject = $0.listener {
-                    return true
-                }
-                return false
+                signalListeners = signalListeners.filter { $0.listener != nil }
+                break
             }
         }
     }
     
     /// Attaches a listener to the signal
     ///
-    /// :param: listener The listener object. Sould the listener be deallocated, its associated callback is automatically removed.
-    /// :param: callback The closure to invoke whenever the signal fires.
+    /// - parameter listener: The listener object. Sould the listener be deallocated, its associated callback is automatically removed.
+    /// - parameter callback: The closure to invoke whenever the signal fires.
     public func listen(listener: AnyObject, callback: (T) -> Void) -> SignalListener<T> {
         dumpCancelledListeners()
-        var signalListener = SignalListener<T>(listener: listener, callback: callback);
+        let signalListener = SignalListener<T>(listener: listener, callback: callback);
         signalListeners.append(signalListener)
         return signalListener
     }
     
     /// Attaches a listener to the signal that is removed after the signal has fired once
     ///
-    /// :param: listener The listener object. Sould the listener be deallocated, its associated callback is automatically removed.
-    /// :param: callback The closure to invoke when the signal fires for the first time.
+    /// - parameter listener: The listener object. Sould the listener be deallocated, its associated callback is automatically removed.
+    /// - parameter callback: The closure to invoke when the signal fires for the first time.
     public func listenOnce(listener: AnyObject, callback: (T) -> Void) -> SignalListener<T> {
-        var signalListener = self.listen(listener, callback: callback)
+        let signalListener = self.listen(listener, callback: callback)
         signalListener.once = true
         return signalListener
     }
@@ -80,10 +67,10 @@ public class Signal<T> {
     /// Attaches a listener to the signal and invokes the callback immediately with the last data fired by the signal
     /// if it has fired at least once.
     ///
-    /// :param: listener The listener object. Sould the listener be deallocated, its associated callback is automatically removed.
-    /// :param: callback The closure to invoke whenever the signal fires.
+    /// - parameter listener: The listener object. Sould the listener be deallocated, its associated callback is automatically removed.
+    /// - parameter callback: The closure to invoke whenever the signal fires.
     public func listenPast(listener: AnyObject, callback: (T) -> Void) -> SignalListener<T> {
-        var signalListener = self.listen(listener, callback: callback)
+        let signalListener = self.listen(listener, callback: callback)
         if fireCount > 0 {
             signalListener.callback(lastDataFired!)
         }
@@ -92,7 +79,7 @@ public class Signal<T> {
     
     /// Fires the singal.
     ///
-    /// :param: data The data to fire the signal with.
+    /// - parameter data: The data to fire the signal with.
     public func fire(data: T) {
         fireCount++
         lastDataFired = data
@@ -102,14 +89,14 @@ public class Signal<T> {
         for signalListener in signalListeners {
             if signalListener.filter == nil || signalListener.filter!(data) == true {
                 if !signalListener.dispatch(data) {
-                    var hash = (signalListener as AnyObject).hash
+                    let hash = (signalListener as AnyObject).hash
                     removeListeners[hash] = true
                 }
             }
         }
         if (removeListeners.count > 0) {
             signalListeners = signalListeners.filter { signalListener in
-                var hash = (signalListener as AnyObject).hash
+                let hash = (signalListener as AnyObject).hash
                 return removeListeners.indexForKey(hash) == nil
             }
         }
@@ -117,7 +104,7 @@ public class Signal<T> {
     
     /// Removes an object as a listener of the Signal.
     ///
-    /// :param: listener The listener to remove.
+    /// - parameter listener: The listener to remove.
     public func removeListener(listener: AnyObject) {
         signalListeners = signalListeners.filter {
             if let definiteListener:AnyObject = $0.listener {
@@ -134,7 +121,7 @@ public class Signal<T> {
 }
 
 /// A SignalLister represenents an instance and its association with a Signal.
-public class SignalListener<T> {
+final public class SignalListener<T> {
     
     // The listener
     weak public var listener: AnyObject?
@@ -151,6 +138,7 @@ public class SignalListener<T> {
         self.listener = listener
         self.callback = callback
     }
+    
     
     private func dispatch(data: T) -> Bool {
         if listener != nil {
@@ -190,7 +178,7 @@ public class SignalListener<T> {
     /// If the closeure returns true, the listener is informed of the fire. The default implementation always
     /// returns true.
     ///
-    /// :param: filter A closure that can decide whether the Signal fire should be dispatched to its listener.
+    /// - parameter filter: A closure that can decide whether the Signal fire should be dispatched to its listener.
     /// :return: Returns self so you can chain calls.
     public func filter(filter: (T) -> Bool) -> SignalListener {
         self.filter = filter
@@ -199,7 +187,7 @@ public class SignalListener<T> {
     
     /// Tells the listener to queue up all signal fires until the elapsed time has passed and only once dispatch the last received
     /// data. A delay of 0 will wait until the next runloop to dispatch the signal fire to the listener.
-    /// :param: delay The number of seconds to delay dispatch
+    /// - parameter delay: The number of seconds to delay dispatch
     /// :return: Returns self so you can chain calls.
     public func queueAndDelayBy(delay: NSTimeInterval) -> SignalListener {
         self.delay = delay
