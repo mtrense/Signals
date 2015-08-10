@@ -61,7 +61,7 @@ class SignalsTests: XCTestCase {
             stringSignalResult = argument2
         })
         
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
         
         XCTAssertEqual(intSignalResult, 1, "argument1 catched")
         XCTAssertEqual(stringSignalResult, "test", "argument2 catched")
@@ -187,7 +187,7 @@ class SignalsTests: XCTestCase {
         var stringSignalResult = ""
         var dispatchCount = 0
         
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
         
         emitter.onIntAndString.listenPast(self, callback: { (argument1, argument2) -> Void in
             intSignalResult = argument1
@@ -198,7 +198,7 @@ class SignalsTests: XCTestCase {
         XCTAssertEqual(intSignalResult, 1, "argument1 catched")
         XCTAssertEqual(stringSignalResult, "test", "argument2 catched")
         
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
         
         XCTAssertEqual(dispatchCount, 2, "Second fire catched")
     }
@@ -216,10 +216,10 @@ class SignalsTests: XCTestCase {
             return intArgument == 2 && stringArgument == "test2"
         }
         
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test2")
-        emitter.onIntAndString.fire(intArgument:2, stringArgument:"test2")
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test3")
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test2"))
+        emitter.onIntAndString.fire((intArgument:2, stringArgument:"test2"))
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test3"))
         
         XCTAssertEqual(dispatchCount, 1, "Filtered fires")
         XCTAssertEqual(intSignalResult, 2, "argument1 catched")
@@ -237,10 +237,10 @@ class SignalsTests: XCTestCase {
             dispatchCount += 1
         }).filter { $0 == 2 && $1 == "test2" }
         
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
-        emitter.onIntAndString.fire(intArgument:2, stringArgument:"test2")
-        emitter.onIntAndString.fire(intArgument:2, stringArgument:"test2")
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test3")
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
+        emitter.onIntAndString.fire((intArgument:2, stringArgument:"test2"))
+        emitter.onIntAndString.fire((intArgument:2, stringArgument:"test2"))
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test3"))
         
         XCTAssertEqual(dispatchCount, 1, "Filtered fires")
         XCTAssertEqual(intSignalResult, 2, "argument1 catched")
@@ -254,9 +254,9 @@ class SignalsTests: XCTestCase {
             dispatchCount += 1
         })
      
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
         listener.cancel()
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
 
         XCTAssertEqual(dispatchCount, 1, "Filtered fires")
     }
@@ -280,7 +280,7 @@ class SignalsTests: XCTestCase {
             self.emitter.onIntAndString.removeListener(self)
             dispatchCount += 1
         }
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
         
         XCTAssertEqual(dispatchCount, 1, "Should have dispatched correct number of times")
     }
@@ -305,8 +305,8 @@ class SignalsTests: XCTestCase {
         }
         self.emitter.onIntAndString.removeListener(listener2)
         
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
 
         XCTAssertEqual(dispatchCount, 3+1, "Should have dispatched correct number of times")
     }
@@ -330,8 +330,8 @@ class SignalsTests: XCTestCase {
         }
         self.emitter.onIntAndString.removeListener(listener2)
         
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
         
         XCTAssertEqual(dispatchCount, 2+2, "Should have dispatched correct number of times")
     }
@@ -355,8 +355,8 @@ class SignalsTests: XCTestCase {
         }
         self.emitter.onIntAndString.removeListener(listener2)
         
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
-        emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
+        emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
         
         XCTAssertEqual(dispatchCount, 1+1, "Should have dispatched correct number of times")
     }
@@ -370,7 +370,7 @@ class SignalsTests: XCTestCase {
                 }
             }
             for _ in 0..<100 {
-                self.emitter.onIntAndString.fire(intArgument:1, stringArgument:"test")
+                self.emitter.onIntAndString.fire((intArgument:1, stringArgument:"test"))
             }
         }
     }
